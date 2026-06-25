@@ -113,36 +113,49 @@ async function requestAppointment() {
     
     const service = document.getElementById('c-service').value;
     const msg = `Hola Serenity Masajes 🌿\n\nSoy ${currentUser} (C.C. ${currentCedula}), me gustaría agendar una cita:\n\n💆 *${service}*\n📅 *${selectedClientDate}* a las *${selectedTime}*\n\n¿Me confirmas disponibilidad?`;
-    
-    // Guardar la solicitud en Firestore como cita "pendiente" o simplemente ocupada temporalmente
-    await dbAddCita({
-        time: selectedTime,
-        date: selectedClientDate,
-        client: currentUser.split(' ')[0],
-        cedula: currentCedula,
-        service: service.split(' ')[0],
-        phone: "", // No tenemos su telefono aquí, lo confirmará en WhatsApp
-        createdAt: new Date().toISOString()
-    });
-
-    // Crear cliente si no existe
-    let cliente = SERENITY.clientes.find(c => c.cedula === currentCedula);
-    if (!cliente) {
-        cliente = {
-            name: currentUser,
-            cedula: currentCedula,
-            phone: "",
-            sessions: 0,
-            next: `${selectedClientDate} · ${selectedTime}`,
-            history: []
-        };
-        await dbUpdateCliente(cliente);
-    }
-
-    renderMyCitas(); // Refresh the list
-    
     const url = `https://wa.me/${SERENITY.whatsappBusiness}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
+    
+    // Open window synchronously to avoid popup blockers
+    const newWindow = window.open('about:blank', '_blank');
+
+    try {
+        // Guardar la solicitud en Firestore como cita "pendiente" o simplemente ocupada temporalmente
+        await dbAddCita({
+            time: selectedTime,
+            date: selectedClientDate,
+            client: currentUser.split(' ')[0],
+            cedula: currentCedula,
+            service: service.split(' ')[0],
+            phone: "", // No tenemos su telefono aquí, lo confirmará en WhatsApp
+            createdAt: new Date().toISOString()
+        });
+
+        // Crear cliente si no existe
+        let cliente = SERENITY.clientes.find(c => c.cedula === currentCedula);
+        if (!cliente) {
+            cliente = {
+                name: currentUser,
+                cedula: currentCedula,
+                phone: "",
+                sessions: 0,
+                next: `${selectedClientDate} · ${selectedTime}`,
+                history: []
+            };
+            await dbUpdateCliente(cliente);
+        }
+
+        renderMyCitas(); // Refresh the list
+        
+        if (newWindow) {
+            newWindow.location.href = url;
+        } else {
+            window.location.href = url; // Fallback
+        }
+    } catch (e) {
+        console.error(e);
+        if (newWindow) newWindow.close();
+        alert('Error al agendar la cita. Por favor intenta de nuevo.');
+    }
 }
 
 // ── Mis Citas ─────────────────────────────────────────────────
