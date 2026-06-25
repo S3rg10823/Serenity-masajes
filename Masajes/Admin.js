@@ -2,6 +2,48 @@
 //  admin.js — Lógica del panel de la masajista
 // ============================================================
 
+// ── Auth ──────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    document.getElementById('admin-auth-view').classList.add('hidden');
+    document.getElementById('admin-layout').classList.remove('hidden');
+    await initAdminView();
+  } else {
+    document.getElementById('admin-auth-view').classList.remove('hidden');
+    document.getElementById('admin-layout').classList.add('hidden');
+  }
+});
+
+function loginAdmin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const pass = document.getElementById('admin-password').value;
+  const errP = document.getElementById('admin-auth-error');
+  
+  if (!email || !pass) {
+    errP.textContent = 'Por favor ingresa correo y contraseña.';
+    return;
+  }
+  errP.textContent = 'Iniciando sesión...';
+  
+  auth.signInWithEmailAndPassword(email, pass).catch(err => {
+    console.error(err);
+    if (err.code === 'auth/user-not-found') {
+      // Auto-register the admin if first time
+      auth.createUserWithEmailAndPassword(email, pass).then(() => {
+         errP.textContent = '';
+      }).catch(e => {
+         errP.textContent = 'Error: ' + e.message;
+      });
+    } else {
+      errP.textContent = 'Credenciales incorrectas o error: ' + err.message;
+    }
+  });
+}
+
+function logoutAdmin() {
+  auth.signOut();
+}
+
 // ── Helpers ──────────────────────────────────────────────────
 function initials(name) {
   return name.split(' ').slice(0, 2).map(n => n[0]).join('');
@@ -221,17 +263,11 @@ function goToNewCita(name, cedula, phone) {
   updatePreview();
 }
 
-function rescheduleClientCita(cedula, name, phone) {
-  const citaIdx = SERENITY.citas.findIndex(c => c.cedula === cedula);
-  if (citaIdx !== -1) {
-    SERENITY.citas.splice(citaIdx, 1);
-    if (typeof saveData === 'function') saveData();
-    buildGrid();
-    buildMonthGrid();
-    showToast('Cita anterior eliminada. Selecciona nuevo horario.');
-  } else {
-    showToast('El cliente no tiene cita próxima, creando una nueva...');
-  }
+async function rescheduleClientCita(cedula, name, phone) {
+  await dbDeleteCita(cedula);
+  buildGrid();
+  buildMonthGrid();
+  showToast('Cita anterior eliminada. Selecciona nuevo horario.');
   goToNewCita(name, cedula, phone);
 }
 
@@ -292,7 +328,7 @@ function updatePreview() {
     `<strong>Vista previa WhatsApp</strong>${msg.replace(/\n/g, '<br>')}`;
 }
 
-function adminConfirm() {
+async function adminConfirm() {
   const client = document.getElementById('a-client').value.trim();
   const cedula = document.getElementById('a-cedula').value.trim();
   const service = document.getElementById('a-service').value;
@@ -312,30 +348,36 @@ function adminConfirm() {
 
   const dateStr = `${selectedAdminDate} a las ${selectedAdminTime}`;
 
-  SERENITY.citas.push({
+  await dbAddCita({
     time: selectedAdminTime,
     date: selectedAdminDate,
     client: client.split(' ')[0],
     cedula: cedula,
     service: service.split(' ')[0],
-    phone: phone
+    phone: phone,
+    createdAt: new Date().toISOString()
   });
     
     // Si no existe el cliente, lo creamos
-    if (!SERENITY.clientes.find(c => c.cedula === cedula)) {
-        SERENITY.clientes.push({
+    let cliente = SERENITY.clientes.find(c => c.cedula === cedula);
+    if (!cliente) {
+        cliente = {
             name: client,
             cedula: cedula,
             phone: phone,
             sessions: 1,
-            next: `${SERENITY.diasSemana[jsDay]?.label || 'Día'} · ${timeH}`,
+            next: `${selectedAdminDate} · ${selectedAdminTime}`,
             history: []
-        });
+        };
+    } else {
+        cliente.next = `${selectedAdminDate} · ${selectedAdminTime}`;
+        cliente.sessions += 1;
     }
+    await dbUpdateCliente(cliente);
 
-    if (typeof saveData === 'function') saveData();
     buildGrid();
     buildMonthGrid();
+    renderClients(SERENITY.clientes);
 
   const msg = `Hola ${client.split(' ')[0]}, te confirmamos tu cita 🌿\n\n💆 *${service}*\n📅 *${dateStr}*\n\n¡Te esperamos! Cualquier duda, escríbenos.`;
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -351,8 +393,11 @@ function adminConfirm() {
 }
 
 // ── Init ──────────────────────────────────────────────────────
-buildGrid();
-buildMonthGrid();
-buildServiceSelect();
-renderClients(SERENITY.clientes);
-updatePreview();
+async function initAdminView() {
+  await loadFirestoreData();
+  buildGrid();
+  buildMonthGrid();
+  buildServiceSelect();
+  renderClients(SERENITY.clientes);
+  updatePreview();
+}
