@@ -36,23 +36,24 @@ const DEFAULT_SERENITY = {
 
     // Citas agendadas (en producción esto vendría de una base de datos)
     citas: [
-        { time: "09:00", day: 0, client: "Laura M.", service: "Relajante", phone: "573001111111" },
-        { time: "10:00", day: 0, client: "Carlos R.", service: "Descontract.", phone: "573009999999" },
-        { time: "11:00", day: 2, client: "María F.", service: "Piedras", phone: "573002222222" },
-        { time: "14:00", day: 2, client: "Ana G.", service: "Reflexología", phone: "573003333333" },
-        { time: "15:00", day: 2, client: "Paola H.", service: "Drenaje", phone: "573004444444" },
-        { time: "09:00", day: 3, client: "Luis T.", service: "Relajante", phone: "573008888888" },
-        { time: "10:30", day: 4, client: "Sandra Q.", service: "Cabeza", phone: "573005555555" },
-        { time: "11:00", day: 5, client: "Marta E.", service: "Relajante", phone: "573007777777" },
-        { time: "14:00", day: 5, client: "Roberto S.", service: "Descontract.", phone: "573006666666" },
-        { time: "16:00", day: 1, client: "Julia P.", service: "Piedras", phone: "573001234500" },
-        { time: "17:00", day: 3, client: "Carmen V.", service: "Drenaje", phone: "573001234501" },
+        { time: "09:00", day: 0, client: "Laura M.", cedula: "11111111", service: "Relajante", phone: "573001111111" },
+        { time: "10:00", day: 0, client: "Carlos R.", cedula: "99999999", service: "Descontract.", phone: "573009999999" },
+        { time: "11:00", day: 2, client: "María F.", cedula: "22222222", service: "Piedras", phone: "573002222222" },
+        { time: "14:00", day: 2, client: "Ana G.", cedula: "33333333", service: "Reflexología", phone: "573003333333" },
+        { time: "15:00", day: 2, client: "Paola H.", cedula: "44444444", service: "Drenaje", phone: "573004444444" },
+        { time: "09:00", day: 3, client: "Luis T.", cedula: "88888888", service: "Relajante", phone: "573008888888" },
+        { time: "10:30", day: 4, client: "Sandra Q.", cedula: "55555555", service: "Cabeza", phone: "573005555555" },
+        { time: "11:00", day: 5, client: "Marta E.", cedula: "77777777", service: "Relajante", phone: "573007777777" },
+        { time: "14:00", day: 5, client: "Roberto S.", cedula: "66666666", service: "Descontract.", phone: "573006666666" },
+        { time: "16:00", day: 1, client: "Julia P.", cedula: "12345000", service: "Piedras", phone: "573001234500" },
+        { time: "17:00", day: 3, client: "Carmen V.", cedula: "12345001", service: "Drenaje", phone: "573001234501" },
     ],
 
     // Historial de clientes con notas internas
     clientes: [
         {
             name: "Laura Martínez",
+            cedula: "11111111",
             phone: "573001111111",
             sessions: 8,
             next: "Lun 23 · 09:00",
@@ -65,6 +66,7 @@ const DEFAULT_SERENITY = {
         },
         {
             name: "María Fernández",
+            cedula: "22222222",
             phone: "573002222222",
             sessions: 5,
             next: "Mié 25 · 11:00",
@@ -76,6 +78,7 @@ const DEFAULT_SERENITY = {
         },
         {
             name: "Ana González",
+            cedula: "33333333",
             phone: "573003333333",
             sessions: 12,
             next: "Mié 25 · 14:00",
@@ -88,6 +91,7 @@ const DEFAULT_SERENITY = {
         },
         {
             name: "Paola Herrera",
+            cedula: "44444444",
             phone: "573004444444",
             sessions: 3,
             next: "Mié 25 · 15:00",
@@ -99,6 +103,7 @@ const DEFAULT_SERENITY = {
         },
         {
             name: "Sandra Quintero",
+            cedula: "55555555",
             phone: "573005555555",
             sessions: 6,
             next: "Vie 27 · 10:30",

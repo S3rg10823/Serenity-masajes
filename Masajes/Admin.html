@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="Styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 </head>
+
 <body>
     <div class="admin-layout">
         <!-- Sidebar -->
@@ -56,17 +58,32 @@
                     </div>
                 </div>
 
-                <h2>Agenda Semanal</h2>
-                <div class="grid-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 id="agenda-title" style="margin-bottom: 0;">Agenda Semanal</h2>
+                    <div class="view-toggle"
+                        style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; display: flex; overflow: hidden;">
+                        <button class="view-btn active" id="btn-semanal" onclick="switchAgendaView('semanal')"
+                            style="padding: 6px 12px; border: none; background: var(--primary); color: white; cursor: pointer; font-family: inherit; font-size: 0.9rem;">Semanal</button>
+                        <button class="view-btn" id="btn-mensual" onclick="switchAgendaView('mensual')"
+                            style="padding: 6px 12px; border: none; background: transparent; color: var(--text); cursor: pointer; font-family: inherit; font-size: 0.9rem;">Mensual</button>
+                    </div>
+                </div>
+                <div class="grid-container" id="view-semanal">
                     <div id="grid-head"></div>
                     <div id="grid-body"></div>
+                </div>
+                <div class="grid-container hidden" id="view-mensual"
+                    style="padding: 1rem; background: var(--surface); border-radius: 12px;">
+                    <div class="month-grid" id="month-body"
+                        style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;"></div>
                 </div>
             </div>
 
             <!-- Clientes Tab -->
             <div id="tab-clientes" class="tab-pane hidden">
                 <h2>Directorio de Clientes</h2>
-                <input type="text" class="search-bar" placeholder="Buscar por nombre..." oninput="filterClients(this.value)">
+                <input type="text" class="search-bar" placeholder="Buscar por nombre..."
+                    oninput="filterClients(this.value)">
                 <div class="clients-grid" id="client-list">
                     <!-- Loaded via JS -->
                 </div>
@@ -78,7 +95,13 @@
                 <div class="form-card">
                     <div class="form-group">
                         <label for="a-client">Nombre del Cliente</label>
-                        <input type="text" id="a-client" class="form-control" placeholder="Ej. Ana Gómez" oninput="updatePreview()">
+                        <input type="text" id="a-client" class="form-control" placeholder="Ej. Ana Gómez"
+                            oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label for="a-cedula">Cédula del Cliente</label>
+                        <input type="text" id="a-cedula" class="form-control" placeholder="Ej. 123456789"
+                            oninput="updatePreview()">
                     </div>
                     <div class="form-group">
                         <label for="a-phone">Teléfono (WhatsApp)</label>
@@ -117,4 +140,5 @@
     <script src="Data.js"></script>
     <script src="Admin.js"></script>
 </body>
+
 </html>

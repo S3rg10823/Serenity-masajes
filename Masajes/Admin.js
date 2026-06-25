@@ -23,6 +23,19 @@ function waIcon() {
 }
 
 // ── Tab switching ─────────────────────────────────────────────
+let currentAgendaView = 'semanal';
+
+function switchAgendaView(view) {
+  currentAgendaView = view;
+  document.getElementById('view-semanal').classList.toggle('hidden', view !== 'semanal');
+  document.getElementById('view-mensual').classList.toggle('hidden', view !== 'mensual');
+  document.getElementById('btn-semanal').classList.toggle('active', view === 'semanal');
+  document.getElementById('btn-mensual').classList.toggle('active', view === 'mensual');
+  document.getElementById('btn-semanal').style.background = view === 'semanal' ? 'var(--primary)' : 'transparent';
+  document.getElementById('btn-semanal').style.color = view === 'semanal' ? 'white' : 'var(--text)';
+  document.getElementById('btn-mensual').style.background = view === 'mensual' ? 'var(--primary)' : 'transparent';
+  document.getElementById('btn-mensual').style.color = view === 'mensual' ? 'white' : 'var(--text)';
+}
 function switchTab(id, btn) {
   ['agenda', 'clientes', 'nueva'].forEach(t => {
     document.getElementById('tab-' + t).classList.add('hidden');
@@ -75,6 +88,45 @@ function buildGrid() {
   document.getElementById('stat-clientes').textContent = SERENITY.clientes.length;
 }
 
+// ── Monthly grid ──────────────────────────────────────────────
+function buildMonthGrid() {
+  const container = document.getElementById('month-body');
+  container.innerHTML = '';
+  
+  const diasSemanaNombres = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  
+  // Headers de los días
+  diasSemanaNombres.forEach(d => {
+    container.innerHTML += `<div style="text-align:center; font-weight:bold; padding: 5px; color: var(--text-muted); font-size: 0.85rem;">${d}</div>`;
+  });
+  
+  // Generar un mes estático de 30 días para el prototipo (empezando un lunes, digamos)
+  // 1er día = Lunes (index 1)
+  container.innerHTML += `<div></div>`; // Offset para domingo
+  
+  for(let i=1; i<=30; i++) {
+    // Buscar si hay citas este día en la data estática
+    // Vamos a mapear los números del 23 al 28 a nuestro mes falso
+    let citasHtml = '';
+    const dateStr = i.toString();
+    const mapDay = SERENITY.diasSemana.find(d => d.num === dateStr);
+    
+    if (mapDay) {
+        const booked = SERENITY.citas.filter(c => c.day === mapDay.idx);
+        if (booked.length > 0) {
+            citasHtml = booked.map(c => `<div style="background:var(--primary); color:white; font-size:0.7rem; padding:2px 4px; border-radius:4px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.time} - ${c.client} - ${c.service}">${c.time} ${c.client}</div>`).join('');
+        }
+    }
+    
+    container.innerHTML += `
+      <div style="min-height: 80px; border: 1px solid var(--border); border-radius: 8px; padding: 4px; background: white; display: flex; flex-direction: column;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); align-self: flex-end; margin-bottom: 4px;">${i}</span>
+        <div style="flex: 1; display:flex; flex-direction:column; gap:2px; overflow-y:auto; max-height: 60px;">${citasHtml}</div>
+      </div>
+    `;
+  }
+}
+
 // Click on a free slot → jump to Nueva cita tab prefilled
 function prefillNewCita(time, dayLabel) {
   switchTab('nueva', document.querySelectorAll('.tab-btn')[2]);
@@ -104,6 +156,10 @@ function renderClients(list) {
         <div class="cc-info">
           <div class="cc-name">${c.name}</div>
           <div class="cc-meta">
+            <i class="ti ti-id" style="font-size:11px;vertical-align:-1px" aria-hidden="true"></i>
+            C.C. ${c.cedula || 'N/A'}
+          </div>
+          <div class="cc-meta" style="margin-top: 2px;">
             <i class="ti ti-calendar" style="font-size:11px;vertical-align:-1px" aria-hidden="true"></i>
             Próxima: ${c.next}
           </div>
@@ -134,7 +190,7 @@ function renderClients(list) {
             ${waIcon()} WhatsApp
           </a>
           <button class="btn-sage"
-            onclick="event.stopPropagation(); goToNewCita('${c.name}', '${c.phone}')">
+            onclick="event.stopPropagation(); goToNewCita('${c.name}', '${c.cedula || ''}', '${c.phone}')">
             <i class="ti ti-calendar-plus" style="font-size:13px" aria-hidden="true"></i>
             Nueva cita
           </button>
@@ -153,9 +209,10 @@ function filterClients(query) {
   renderClients(SERENITY.clientes.filter(c => c.name.toLowerCase().includes(q)));
 }
 
-function goToNewCita(name, phone) {
+function goToNewCita(name, cedula, phone) {
   switchTab('nueva', document.querySelectorAll('.tab-btn')[2]);
   document.getElementById('a-client').value = name;
+  document.getElementById('a-cedula').value = cedula;
   document.getElementById('a-phone').value = phone;
   updatePreview();
 }
@@ -191,11 +248,13 @@ function updatePreview() {
 
 function adminConfirm() {
   const client = document.getElementById('a-client').value.trim();
+  const cedula = document.getElementById('a-cedula').value.trim();
   const service = document.getElementById('a-service').value;
   const dt = document.getElementById('a-dt').value;
   const phone = document.getElementById('a-phone').value.trim() || SERENITY.whatsappBusiness;
 
   if (!client) { showToast('⚠ Ingresa el nombre del cliente'); return; }
+  if (!cedula) { showToast('⚠ Ingresa la cédula del cliente'); return; }
 
   let dateStr = '[fecha por confirmar]';
   if (dt) {
@@ -214,11 +273,26 @@ function adminConfirm() {
       time: timeH,
       day: jsDay,
       client: client.split(' ')[0],
+      cedula: cedula,
       service: service.split(' ')[0],
       phone: phone
     });
+    
+    // Si no existe el cliente, lo creamos
+    if (!SERENITY.clientes.find(c => c.cedula === cedula)) {
+        SERENITY.clientes.push({
+            name: client,
+            cedula: cedula,
+            phone: phone,
+            sessions: 1,
+            next: `${SERENITY.diasSemana[jsDay]?.label || 'Día'} · ${timeH}`,
+            history: []
+        });
+    }
+
     if (typeof saveData === 'function') saveData();
     buildGrid();
+    buildMonthGrid();
   }
 
   const msg = `Hola ${client.split(' ')[0]}, te confirmamos tu cita 🌿\n\n💆 *${service}*\n📅 *${dateStr}*\n\n¡Te esperamos! Cualquier duda, escríbenos.`;
@@ -230,6 +304,7 @@ function adminConfirm() {
 
 // ── Init ──────────────────────────────────────────────────────
 buildGrid();
+buildMonthGrid();
 buildServiceSelect();
 renderClients(SERENITY.clientes);
 updatePreview();

@@ -3,15 +3,21 @@
 // ============================================================
 
 let currentUser = null;
+let currentCedula = null;
 let selectedDay = null;
 let selectedTime = null;
 
 // ── Auth ──────────────────────────────────────────────────────
 function login() {
     const name = document.getElementById('c-name').value.trim();
-    if (!name) return;
+    const cedula = document.getElementById('c-cedula').value.trim();
+    if (!name || !cedula) {
+        alert('Por favor ingresa tu nombre y cédula.');
+        return;
+    }
     
     currentUser = name;
+    currentCedula = cedula;
     document.getElementById('auth-view').classList.add('hidden');
     document.getElementById('main-view').classList.remove('hidden');
     
@@ -22,7 +28,9 @@ function login() {
 
 function logout() {
     currentUser = null;
+    currentCedula = null;
     document.getElementById('c-name').value = '';
+    document.getElementById('c-cedula').value = '';
     document.getElementById('auth-view').classList.remove('hidden');
     document.getElementById('main-view').classList.add('hidden');
 }
@@ -113,7 +121,7 @@ function requestAppointment() {
     const service = document.getElementById('c-service').value;
     const dayObj = SERENITY.diasSemana.find(d => d.idx === selectedDay);
     
-    const msg = `Hola Serenity Masajes 🌿\n\nSoy ${currentUser}, me gustaría agendar una cita:\n\n💆 *${service}*\n📅 *${dayObj.label} ${dayObj.num}* a las *${selectedTime}*\n\n¿Me confirmas disponibilidad?`;
+    const msg = `Hola Serenity Masajes 🌿\n\nSoy ${currentUser} (C.C. ${currentCedula}), me gustaría agendar una cita:\n\n💆 *${service}*\n📅 *${dayObj.label} ${dayObj.num}* a las *${selectedTime}*\n\n¿Me confirmas disponibilidad?`;
     
     const url = `https://wa.me/${SERENITY.whatsappBusiness}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
@@ -122,11 +130,10 @@ function requestAppointment() {
 // ── Mis Citas ─────────────────────────────────────────────────
 function renderMyCitas() {
     // Buscar en el historial de "clientes" y en "citas" activas
-    // Para el demo, hacemos una búsqueda parcial por nombre
-    const myNameShort = currentUser.split(' ')[0].toLowerCase();
+    // Buscamos usando la cédula para mayor precisión
     
     // Citas activas (próximas)
-    const upcoming = SERENITY.citas.filter(c => c.client.toLowerCase().includes(myNameShort));
+    const upcoming = SERENITY.citas.filter(c => c.cedula === currentCedula);
     
     const contUp = document.getElementById('citas-upcoming');
     if (upcoming.length === 0) {
@@ -154,7 +161,7 @@ function renderMyCitas() {
     }
     
     // Historial pasado
-    const clientData = SERENITY.clientes.find(c => c.name.toLowerCase().includes(myNameShort));
+    const clientData = SERENITY.clientes.find(c => c.cedula === currentCedula);
     const contPast = document.getElementById('citas-past');
     
     if (!clientData || clientData.history.length === 0) {
@@ -172,11 +179,11 @@ function renderMyCitas() {
 }
 
 function cancelWhatsApp(service, day, time) {
-    const msg = `Hola Serenity Masajes,\n\nSoy ${currentUser}, necesito *cancelar* mi cita de ${service} programada para el ${day} a las ${time}.`;
+    const msg = `Hola Serenity Masajes,\n\nSoy ${currentUser} (C.C. ${currentCedula}), necesito *cancelar* mi cita de ${service} programada para el ${day} a las ${time}.`;
     window.open(`https://wa.me/${SERENITY.whatsappBusiness}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function rescheduleWhatsApp(service, day, time) {
-    const msg = `Hola Serenity Masajes,\n\nSoy ${currentUser}, necesito *reprogramar* mi cita de ${service} programada para el ${day} a las ${time}. ¿Qué otros horarios tienen disponibles?`;
+    const msg = `Hola Serenity Masajes,\n\nSoy ${currentUser} (C.C. ${currentCedula}), necesito *reprogramar* mi cita de ${service} programada para el ${day} a las ${time}. ¿Qué otros horarios tienen disponibles?`;
     window.open(`https://wa.me/${SERENITY.whatsappBusiness}?text=${encodeURIComponent(msg)}`, '_blank');
 }
