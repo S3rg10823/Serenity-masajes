@@ -386,7 +386,7 @@ async function adminConfirm() {
     date: selectedAdminDate,
     client: client.split(' ')[0],
     cedula: cedula,
-    service: service.split(' ')[0],
+    service: service,
     phone: phone,
     createdAt: new Date().toISOString()
   });

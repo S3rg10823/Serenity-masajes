@@ -148,7 +148,7 @@ async function requestAppointment() {
             date: selectedClientDate,
             client: currentUser.split(' ')[0],
             cedula: currentCedula,
-            service: service.split(' ')[0],
+            service: service, // Se guarda el nombre completo para poder calcular la duración
             phone: "", // No tenemos su telefono aquí, lo confirmará en WhatsApp
             createdAt: new Date().toISOString()
         });
