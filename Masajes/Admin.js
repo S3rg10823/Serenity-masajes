@@ -82,6 +82,8 @@ function switchAgendaView(view) {
   document.getElementById('btn-semanal').style.color = view === 'semanal' ? 'white' : 'var(--text)';
   document.getElementById('btn-mensual').style.background = view === 'mensual' ? 'var(--primary)' : 'transparent';
   document.getElementById('btn-mensual').style.color = view === 'mensual' ? 'white' : 'var(--text)';
+  
+  document.getElementById('agenda-title').textContent = view === 'semanal' ? 'Agenda Semanal' : 'Agenda Mensual';
 }
 function switchTab(id, btn) {
   ['agenda', 'clientes', 'nueva'].forEach(t => {
