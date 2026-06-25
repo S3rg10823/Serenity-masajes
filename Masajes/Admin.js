@@ -234,6 +234,11 @@ function renderClients(list) {
             onclick="event.stopPropagation()">
             ${waIcon()} WhatsApp
           </a>
+          <button class="btn-sage" style="background: #fee2e2; color: #ef4444;"
+            onclick="event.stopPropagation(); cancelClientCita('${c.cedula}')">
+            <i class="ti ti-trash" style="font-size:13px" aria-hidden="true"></i>
+            Cancelar cita
+          </button>
           <button class="btn-sage" style="background: #e2e8f0; color: #475569;"
             onclick="event.stopPropagation(); rescheduleClientCita('${c.cedula}', '${c.name}', '${c.phone}')">
             <i class="ti ti-refresh" style="font-size:13px" aria-hidden="true"></i>
@@ -287,6 +292,15 @@ async function rescheduleClientCita(cedula, name, phone) {
   buildMonthGrid();
   showToast('Cita anterior eliminada. Selecciona nuevo horario.');
   goToNewCita(name, cedula, phone);
+}
+
+async function cancelClientCita(cedula) {
+  if (confirm('¿Estás seguro de que deseas cancelar la cita de este cliente?')) {
+      await dbDeleteCita(cedula);
+      buildGrid();
+      buildMonthGrid();
+      showToast('Cita cancelada correctamente.');
+  }
 }
 
 // ── Nueva cita form ───────────────────────────────────────────
