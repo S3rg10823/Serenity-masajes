@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serenity Admin</title>
+    <link rel="stylesheet" href="Styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="ti ti-leaf"></i>
+                Serenity Masajes
+            </div>
+            <nav class="nav-menu">
+                <button class="tab-btn on" onclick="switchTab('agenda', this)">
+                    <i class="ti ti-calendar"></i> Agenda
+                </button>
+                <button class="tab-btn" onclick="switchTab('clientes', this)">
+                    <i class="ti ti-users"></i> Clientes
+                </button>
+                <button class="tab-btn" onclick="switchTab('nueva', this)">
+                    <i class="ti ti-plus"></i> Nueva Cita
+                </button>
+                <div style="flex:1"></div>
+                <button class="tab-btn" onclick="resetData(); location.reload()">
+                    <i class="ti ti-refresh"></i> Reset Data
+                </button>
+                <a href="index.html" class="tab-btn" target="_blank" style="text-decoration:none">
+                    <i class="ti ti-external-link"></i> Vista Cliente
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Agenda Tab -->
+            <div id="tab-agenda" class="tab-pane">
+                <div class="stats-header">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="ti ti-clock"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-libres">--</h3>
+                            <p>Horas Libres Semanales</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="ti ti-users"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-clientes">--</h3>
+                            <p>Clientes Activos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Agenda Semanal</h2>
+                <div class="grid-container">
+                    <div id="grid-head"></div>
+                    <div id="grid-body"></div>
+                </div>
+            </div>
+
+            <!-- Clientes Tab -->
+            <div id="tab-clientes" class="tab-pane hidden">
+                <h2>Directorio de Clientes</h2>
+                <input type="text" class="search-bar" placeholder="Buscar por nombre..." oninput="filterClients(this.value)">
+                <div class="clients-grid" id="client-list">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Nueva Cita Tab -->
+            <div id="tab-nueva" class="tab-pane hidden">
+                <h2>Agendar Nueva Cita</h2>
+                <div class="form-card">
+                    <div class="form-group">
+                        <label for="a-client">Nombre del Cliente</label>
+                        <input type="text" id="a-client" class="form-control" placeholder="Ej. Ana Gómez" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label for="a-phone">Teléfono (WhatsApp)</label>
+                        <input type="text" id="a-phone" class="form-control" placeholder="Ej. 573001234567 (opcional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="a-service">Servicio</label>
+                        <select id="a-service" class="form-control" onchange="updatePreview()">
+                            <!-- Loaded via JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="a-dt">Fecha y Hora</label>
+                        <input type="datetime-local" id="a-dt" class="form-control" oninput="updatePreview()">
+                    </div>
+
+                    <div id="a-wa-prev" class="preview-box">
+                        <!-- Preview loaded via JS -->
+                    </div>
+
+                    <button class="btn-sage btn-block" style="margin-top: 1.5rem" onclick="adminConfirm()">
+                        <i class="ti ti-brand-whatsapp"></i> Enviar Confirmación por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="ti ti-check"></i>
+        <span></span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="Data.js"></script>
+    <script src="Admin.js"></script>
+</body>
+</html>
