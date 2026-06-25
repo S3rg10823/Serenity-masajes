@@ -3,7 +3,7 @@
 // ============================================================
 
 const DEFAULT_SERENITY = {
-    whatsappBusiness: "573001234567",
+    whatsappBusiness: "573169201539",
     nombre: "Serenity Masajes",
     servicios: [
         "Masaje relajante 60 min",
