@@ -27,12 +27,17 @@ function loginAdmin() {
   
   auth.signInWithEmailAndPassword(email, pass).catch(err => {
     console.error(err);
-    if (err.code === 'auth/user-not-found') {
+    // En proyectos nuevos de Firebase, el error es 'auth/invalid-credential' en vez de 'user-not-found'
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
       // Auto-register the admin if first time
       auth.createUserWithEmailAndPassword(email, pass).then(() => {
          errP.textContent = '';
       }).catch(e => {
-         errP.textContent = 'Error: ' + e.message;
+         if (e.code === 'auth/email-already-in-use') {
+             errP.textContent = 'Contraseña incorrecta.';
+         } else {
+             errP.textContent = 'Error al registrar: ' + e.message;
+         }
       });
     } else {
       errP.textContent = 'Credenciales incorrectas o error: ' + err.message;
