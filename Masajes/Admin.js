@@ -206,7 +206,10 @@ function toggleClient(i) {
 
 function filterClients(query) {
   const q = query.toLowerCase();
-  renderClients(SERENITY.clientes.filter(c => c.name.toLowerCase().includes(q)));
+  renderClients(SERENITY.clientes.filter(c => 
+    c.name.toLowerCase().includes(q) || 
+    (c.cedula && c.cedula.toLowerCase().includes(q))
+  ));
 }
 
 function goToNewCita(name, cedula, phone) {
