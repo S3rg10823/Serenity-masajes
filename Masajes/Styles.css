@@ -307,3 +307,40 @@ h2 { font-size: 1.25rem; margin-bottom: 1rem; }
 .auth-card { background: var(--surface); padding: 3rem; border-radius: var(--radius); box-shadow: var(--shadow-md); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
 .auth-card h2 { color: var(--primary); margin-bottom: 1.5rem; font-size: 1.5rem; }
 .btn-block { width: 100%; margin-top: 1rem; padding: 12px; }
+
+/* Responsive Admin Panel */
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 1rem;
+  }
+  .brand { padding: 0 0 1rem 0; justify-content: center; }
+  .nav-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .main-content {
+    padding: 1rem;
+    overflow-y: visible;
+  }
+  .stats-header {
+    flex-direction: column;
+  }
+  .clients-grid {
+    grid-template-columns: 1fr;
+  }
+  .grid-container {
+    overflow-x: auto;
+  }
+  .grid-row {
+    min-width: 600px;
+  }
+}
