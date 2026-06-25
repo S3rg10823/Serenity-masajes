@@ -237,10 +237,10 @@ h2 { font-size: 1.25rem; margin-bottom: 1rem; }
 .tl-service { font-size: 0.95rem; font-weight: 500; color: var(--text); }
 .tl-note { background: var(--bg); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; margin-top: 6px; color: var(--text-muted); font-style: italic; line-height: 1.4; }
 
-.cc-btns { display: flex; gap: 8px; }
-.btn-wa { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: #25D366; color: white; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: var(--transition); border: none; cursor: pointer; }
+.cc-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-wa { flex: 1 1 100%; display: flex; align-items: center; justify-content: center; gap: 6px; background: #25D366; color: white; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: var(--transition); border: none; cursor: pointer; }
 .btn-wa:hover { background: #20BA56; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
-.btn-sage { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--primary); color: white; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: var(--transition); border: none; cursor: pointer; }
+.btn-sage { flex: 1 1 45%; display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--primary); color: white; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: var(--transition); border: none; cursor: pointer; }
 .btn-sage:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(134, 167, 137, 0.3); }
 
 /* Forms & Inputs */
