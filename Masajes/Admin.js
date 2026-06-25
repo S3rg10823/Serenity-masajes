@@ -189,6 +189,11 @@ function renderClients(list) {
             onclick="event.stopPropagation()">
             ${waIcon()} WhatsApp
           </a>
+          <button class="btn-sage" style="background: #e2e8f0; color: #475569;"
+            onclick="event.stopPropagation(); rescheduleClientCita('${c.cedula}', '${c.name}', '${c.phone}')">
+            <i class="ti ti-refresh" style="font-size:13px" aria-hidden="true"></i>
+            Reprogramar
+          </button>
           <button class="btn-sage"
             onclick="event.stopPropagation(); goToNewCita('${c.name}', '${c.cedula || ''}', '${c.phone}')">
             <i class="ti ti-calendar-plus" style="font-size:13px" aria-hidden="true"></i>
@@ -218,6 +223,20 @@ function goToNewCita(name, cedula, phone) {
   document.getElementById('a-cedula').value = cedula;
   document.getElementById('a-phone').value = phone;
   updatePreview();
+}
+
+function rescheduleClientCita(cedula, name, phone) {
+  const citaIdx = SERENITY.citas.findIndex(c => c.cedula === cedula);
+  if (citaIdx !== -1) {
+    SERENITY.citas.splice(citaIdx, 1);
+    if (typeof saveData === 'function') saveData();
+    buildGrid();
+    buildMonthGrid();
+    showToast('Cita anterior eliminada. Selecciona nuevo horario.');
+  } else {
+    showToast('El cliente no tiene cita próxima, creando una nueva...');
+  }
+  goToNewCita(name, cedula, phone);
 }
 
 // ── Nueva cita form ───────────────────────────────────────────

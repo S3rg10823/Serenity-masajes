@@ -141,6 +141,11 @@ function renderMyCitas() {
     } else {
         contUp.innerHTML = upcoming.map(c => {
             const d = SERENITY.diasSemana.find(day => day.idx === c.day);
+            const today = SERENITY.diasSemana.find(day => day.hoy);
+            
+            // Permitir reprogramar si la cita es mañana o después (idx > hoy.idx)
+            const canReschedule = d && today && d.idx > today.idx;
+
             return `
             <div class="appointment-card upcoming">
                 <div class="appointment-info">
@@ -151,9 +156,15 @@ function renderMyCitas() {
                     <button class="btn-outline cancel" onclick="cancelWhatsApp('${c.service}', '${d ? d.label + ' ' + d.num : ''}', '${c.time}')">
                         <i class="ti ti-x"></i> Cancelar
                     </button>
+                    ${canReschedule ? `
                     <button class="btn-outline" onclick="rescheduleWhatsApp('${c.service}', '${d ? d.label + ' ' + d.num : ''}', '${c.time}')">
                         <i class="ti ti-refresh"></i> Reprogramar
                     </button>
+                    ` : `
+                    <button class="btn-outline" style="opacity:0.5; cursor:not-allowed;" onclick="alert('No puedes reprogramar con menos de 24 horas de anticipación. Por favor comunícate directamente por WhatsApp.')">
+                        <i class="ti ti-refresh"></i> Reprogramar
+                    </button>
+                    `}
                 </div>
             </div>
             `;
