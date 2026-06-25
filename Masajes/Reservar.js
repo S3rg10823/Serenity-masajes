@@ -88,7 +88,7 @@ function selectDay(dayIdx) {
 }
 
 function buildTimes(dayIdx) {
-    const cont = document.getElementById('time-grid');
+    const cont = document.getElementById('c-times');
     
     const dayObj = SERENITY.diasSemana.find(d => d.idx === dayIdx);
     const dateStr = dayObj ? dayObj.date : null;

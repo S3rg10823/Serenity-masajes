@@ -277,7 +277,7 @@ h2 { font-size: 1.25rem; margin-bottom: 1rem; }
 .time-btn.selected { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(134, 167, 137, 0.3); }
 .time-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #f0f0f0; border-color: var(--border); color: #999; transform: none; box-shadow: none; }
 
-.day-selector { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 1.5rem; scrollbar-width: none; }
+.day-selector { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; padding-bottom: 12px; margin-bottom: 1.5rem; scrollbar-width: none; }
 .day-selector::-webkit-scrollbar { display: none; }
 .day-pill { flex: 0 0 auto; padding: 14px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; cursor: pointer; transition: var(--transition); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .day-pill .lbl { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; }
