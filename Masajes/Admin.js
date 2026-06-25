@@ -254,10 +254,11 @@ function adminConfirm() {
   const cedula = document.getElementById('a-cedula').value.trim();
   const service = document.getElementById('a-service').value;
   const dt = document.getElementById('a-dt').value;
-  const phone = document.getElementById('a-phone').value.trim() || SERENITY.whatsappBusiness;
+  const phone = document.getElementById('a-phone').value.trim();
 
   if (!client) { showToast('⚠ Ingresa el nombre del cliente'); return; }
   if (!cedula) { showToast('⚠ Ingresa la cédula del cliente'); return; }
+  if (!phone) { showToast('⚠ Ingresa el teléfono del cliente'); return; }
 
   let dateStr = '[fecha por confirmar]';
   if (dt) {
