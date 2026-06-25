@@ -96,6 +96,104 @@
 
     </div>
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serenity Masajes - Reservar</title>
+    <link rel="stylesheet" href="Styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+    <!-- Auth View -->
+    <div id="auth-view" class="auth-container">
+        <div class="auth-card">
+            <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+                <i class="ti ti-leaf"></i>
+            </div>
+            <h2>Bienvenido a Serenity</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Ingresa tu nombre para ver tus citas o agendar una nueva.</p>
+            
+            <div class="form-group" style="text-align: left;">
+                <label for="c-name">Tu nombre y apellido</label>
+                <input type="text" id="c-name" class="form-control" onkeydown="if(event.key==='Enter') login()">
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label for="c-cedula">Tu número de cédula</label>
+                <input type="text" id="c-cedula" class="form-control" onkeydown="if(event.key==='Enter') login()">
+            </div>
+            
+            <button class="btn-sage btn-block" onclick="login()">Entrar</button>
+        </div>
+    </div>
+
+    <!-- Main Client View -->
+    <div id="main-view" class="client-layout hidden">
+        
+        <header class="header-hero">
+            <h1 id="welcome-msg">Hola, Cliente</h1>
+            <p>Reserva tu momento de paz</p>
+        </header>
+
+        <nav class="day-selector" style="justify-content: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+            <button class="tab-btn on" onclick="switchClientTab('agendar', this)" style="border-radius: 20px; padding: 10px 20px;">
+                <i class="ti ti-calendar-plus"></i> Agendar
+            </button>
+            <button class="tab-btn" onclick="switchClientTab('miscitas', this)" style="border-radius: 20px; padding: 10px 20px;">
+                <i class="ti ti-list"></i> Mis Citas
+            </button>
+            <button class="tab-btn" onclick="logout()" style="border-radius: 20px; padding: 10px 20px; margin-left: auto;">
+                <i class="ti ti-logout"></i> Salir
+            </button>
+        </nav>
+
+        <!-- Agendar Tab -->
+        <div id="tab-agendar" class="tab-pane">
+            <div class="form-card" style="max-width: 100%;">
+                
+                <div class="form-group">
+                    <label>1. Elige un servicio</label>
+                    <select id="c-service" class="form-control">
+                        <!-- Loaded via JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>2. Selecciona un día</label>
+                    <input type="date" id="c-date" class="form-control" onchange="selectClientDate(this.value)">
+                </div>
+
+                <div class="form-group">
+                    <label>3. Horas disponibles</label>
+                    <div id="c-times" class="time-grid">
+                        <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 1rem;">Selecciona un día primero</div>
+                    </div>
+                </div>
+
+                <button class="btn-sage btn-block" style="margin-top: 2rem;" onclick="requestAppointment()">
+                    <i class="ti ti-brand-whatsapp"></i> Solicitar Cita por WhatsApp
+                </button>
+            </div>
+        </div>
+
+        <!-- Mis Citas Tab -->
+        <div id="tab-miscitas" class="tab-pane hidden">
+            <h3>Tus próximas citas</h3>
+            <div id="citas-upcoming" style="margin-top: 1rem;">
+                <!-- Loaded via JS -->
+            </div>
+
+            <h3 style="margin-top: 2.5rem; color: var(--text-muted);">Historial</h3>
+            <div id="citas-past" style="margin-top: 1rem; opacity: 0.8;">
+                <!-- Loaded via JS -->
+            </div>
+        </div>
+
+    </div>
+
     <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <!-- Add Firebase products that you want to use -->
@@ -103,8 +201,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <!-- Scripts Propios -->
-    <script src="firebase-config.js?v=2"></script>
-    <script src="Data.js?v=2"></script>
-    <script src="Reservar.js?v=2"></script>
+    <script src="firebase-config.js?v=3"></script>
+    <script src="Data.js?v=3"></script>
+    <script src="Reservar.js?v=3"></script>
 </body>
 </html>
