@@ -111,13 +111,18 @@ const DEFAULT_SERENITY = {
     ],
 };
 
+const DATA_VERSION = 2;
+
 let SERENITY;
 
 function initData() {
     const stored = localStorage.getItem('serenity_data');
-    if (stored) {
+    const storedVersion = localStorage.getItem('serenity_version');
+
+    if (stored && storedVersion && parseInt(storedVersion) === DATA_VERSION) {
         SERENITY = JSON.parse(stored);
     } else {
+        // Datos antiguos o inexistentes → cargar los nuevos defaults
         SERENITY = JSON.parse(JSON.stringify(DEFAULT_SERENITY));
         saveData();
     }
@@ -125,11 +130,13 @@ function initData() {
 
 function saveData() {
     localStorage.setItem('serenity_data', JSON.stringify(SERENITY));
+    localStorage.setItem('serenity_version', DATA_VERSION.toString());
 }
 
 // Reset data (for testing)
 function resetData() {
     localStorage.removeItem('serenity_data');
+    localStorage.removeItem('serenity_version');
     initData();
 }
 
