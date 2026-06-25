@@ -26,27 +26,22 @@ const DEFAULT_SERENITY = {
 
     // Días visibles en la agenda (0=Lun, 5=Sáb)
     diasSemana: [
-        { idx: 0, label: "Lun", num: "23" },
-        { idx: 1, label: "Mar", num: "24" },
-        { idx: 2, label: "Mié", num: "25", hoy: true },
-        { idx: 3, label: "Jue", num: "26" },
-        { idx: 4, label: "Vie", num: "27" },
-        { idx: 5, label: "Sáb", num: "28" },
+        { idx: 0, label: "Lun", num: "22", date: "2026-06-22", hoy: false },
+        { idx: 1, label: "Mar", num: "23", date: "2026-06-23", hoy: false },
+        { idx: 2, label: "Mié", num: "24", date: "2026-06-24", hoy: false },
+        { idx: 3, label: "Jue", num: "25", date: "2026-06-25", hoy: true },
+        { idx: 4, label: "Vie", num: "26", date: "2026-06-26", hoy: false },
+        { idx: 5, label: "Sáb", num: "27", date: "2026-06-27", hoy: false },
     ],
 
-    // Citas agendadas (en producción esto vendría de una base de datos)
+    // Citas iniciales de demostración
     citas: [
-        { time: "09:00", day: 0, client: "Laura M.", cedula: "11111111", service: "Relajante", phone: "573001111111" },
-        { time: "10:00", day: 0, client: "Carlos R.", cedula: "99999999", service: "Descontract.", phone: "573009999999" },
-        { time: "11:00", day: 2, client: "María F.", cedula: "22222222", service: "Piedras", phone: "573002222222" },
-        { time: "14:00", day: 2, client: "Ana G.", cedula: "33333333", service: "Reflexología", phone: "573003333333" },
-        { time: "15:00", day: 2, client: "Paola H.", cedula: "44444444", service: "Drenaje", phone: "573004444444" },
-        { time: "09:00", day: 3, client: "Luis T.", cedula: "88888888", service: "Relajante", phone: "573008888888" },
-        { time: "10:30", day: 4, client: "Sandra Q.", cedula: "55555555", service: "Cabeza", phone: "573005555555" },
-        { time: "11:00", day: 5, client: "Marta E.", cedula: "77777777", service: "Relajante", phone: "573007777777" },
-        { time: "14:00", day: 5, client: "Roberto S.", cedula: "66666666", service: "Descontract.", phone: "573006666666" },
-        { time: "16:00", day: 1, client: "Julia P.", cedula: "12345000", service: "Piedras", phone: "573001234500" },
-        { time: "17:00", day: 3, client: "Carmen V.", cedula: "12345001", service: "Drenaje", phone: "573001234501" },
+        { time: "09:00", day: 3, date: "2026-06-25", client: "Luis T.", cedula: "88888888", service: "Relajante", phone: "573008888888" },
+        { time: "10:30", day: 4, date: "2026-06-26", client: "Sandra Q.", cedula: "55555555", service: "Cabeza", phone: "573005555555" },
+        { time: "11:00", day: 5, date: "2026-06-27", client: "Marta E.", cedula: "77777777", service: "Relajante", phone: "573007777777" },
+        { time: "14:00", day: 5, date: "2026-06-27", client: "Roberto S.", cedula: "66666666", service: "Descontract.", phone: "573006666666" },
+        { time: "16:00", day: 1, date: "2026-06-23", client: "Julia P.", cedula: "12345000", service: "Piedras", phone: "573001234500" },
+        { time: "17:00", day: 3, date: "2026-06-25", client: "Carmen V.", cedula: "12345001", service: "Drenaje", phone: "573001234501" },
     ],
 
     // Historial de clientes con notas internas

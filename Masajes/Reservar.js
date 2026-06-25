@@ -87,10 +87,13 @@ function selectDay(dayIdx) {
 }
 
 function buildTimes(dayIdx) {
-    const cont = document.getElementById('c-times');
+    const cont = document.getElementById('time-grid');
     
-    // Find booked times for this day
-    const bookedTimes = SERENITY.citas.filter(c => c.day === dayIdx).map(c => c.time);
+    const dayObj = SERENITY.diasSemana.find(d => d.idx === dayIdx);
+    const dateStr = dayObj ? dayObj.date : null;
+
+    // Obtener los horarios ocupados de las citas
+    const bookedTimes = SERENITY.citas.filter(c => c.date === dateStr || c.day === dayIdx).map(c => c.time);
     
     let html = '';
     SERENITY.horarios.forEach(time => {
@@ -120,7 +123,6 @@ function requestAppointment() {
     
     const service = document.getElementById('c-service').value;
     const dayObj = SERENITY.diasSemana.find(d => d.idx === selectedDay);
-    
     const msg = `Hola Serenity Masajes 🌿\n\nSoy ${currentUser} (C.C. ${currentCedula}), me gustaría agendar una cita:\n\n💆 *${service}*\n📅 *${dayObj.label} ${dayObj.num}* a las *${selectedTime}*\n\n¿Me confirmas disponibilidad?`;
     
     const url = `https://wa.me/${SERENITY.whatsappBusiness}?text=${encodeURIComponent(msg)}`;

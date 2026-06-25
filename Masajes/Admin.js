@@ -68,14 +68,14 @@ function buildGrid() {
     body += `<div class="grid-row">`;
     body += `<div class="time-cell">${time}</div>`;
     diasSemana.forEach(d => {
-      const booked = citas.find(c => c.time === time && c.day === d.idx);
+      const booked = citas.find(c => c.time === time && c.date === d.date);
       if (booked) {
         body += `<div class="slot" style="cursor:default;">
           <div class="slot-bk">${booked.client}<span>${booked.service}</span></div>
         </div>`;
       } else {
         freeCount++;
-        body += `<div class="slot" onclick="prefillNewCita('${time}', '${d.label} ${d.num}')">
+        body += `<div class="slot" onclick="prefillNewCita('${time}', '${d.date}')">
           <div class="slot-free-label">+ cita</div>
         </div>`;
       }
@@ -105,17 +105,12 @@ function buildMonthGrid() {
   container.innerHTML += `<div></div>`; // Offset para domingo
   
   for(let i=1; i<=30; i++) {
-    // Buscar si hay citas este día en la data estática
-    // Vamos a mapear los números del 23 al 28 a nuestro mes falso
     let citasHtml = '';
-    const dateStr = i.toString();
-    const mapDay = SERENITY.diasSemana.find(d => d.num === dateStr);
+    const dateStr = `2026-06-${i.toString().padStart(2, '0')}`;
     
-    if (mapDay) {
-        const booked = SERENITY.citas.filter(c => c.day === mapDay.idx);
-        if (booked.length > 0) {
-            citasHtml = booked.map(c => `<div style="background:var(--primary); color:white; font-size:0.7rem; padding:2px 4px; border-radius:4px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.time} - ${c.client} - ${c.service}">${c.time} ${c.client}</div>`).join('');
-        }
+    const booked = SERENITY.citas.filter(c => c.date === dateStr);
+    if (booked.length > 0) {
+        citasHtml = booked.map(c => `<div style="background:var(--primary); color:white; font-size:0.7rem; padding:2px 4px; border-radius:4px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.time} - ${c.client} - ${c.service}">${c.time} ${c.client}</div>`).join('');
     }
     
     container.innerHTML += `
@@ -128,18 +123,14 @@ function buildMonthGrid() {
 }
 
 // Click on a free slot → jump to Nueva cita tab prefilled
-function prefillNewCita(time, dayLabel) {
+function prefillNewCita(time, dateStr) {
   switchTab('nueva', document.querySelectorAll('.tab-btn')[2]);
   
-  // Encontrar el día por su label
-  const dayObj = SERENITY.diasSemana.find(d => (d.label + ' ' + d.num) === dayLabel);
-  if (dayObj) {
-      selectAdminDay(dayObj.idx);
-      selectAdminTime(time);
-  }
+  document.getElementById('a-date').value = dateStr;
+  selectAdminDate(dateStr);
+  selectAdminTime(time);
   
-  showToast('Horario seleccionado: ' + dayLabel + ' · ' + time);
-  updatePreview();
+  showToast('Horario seleccionado: ' + dateStr + ' · ' + time);
 }
 
 // ── Client list ───────────────────────────────────────────────
@@ -245,31 +236,19 @@ function rescheduleClientCita(cedula, name, phone) {
 }
 
 // ── Nueva cita form ───────────────────────────────────────────
-let selectedAdminDay = null;
+let selectedAdminDate = null;
 let selectedAdminTime = null;
 
-function buildAdminDays() {
-  const cont = document.getElementById('a-days');
-  cont.innerHTML = SERENITY.diasSemana.map((d) => `
-      <div class="day-pill" id="a-day-${d.idx}" onclick="selectAdminDay(${d.idx})">
-          <span class="lbl">${d.label}</span>
-          <span class="num">${d.num}</span>
-      </div>
-  `).join('');
-}
-
-function selectAdminDay(dayIdx) {
-  selectedAdminDay = dayIdx;
+function selectAdminDate(dateStr) {
+  selectedAdminDate = dateStr;
   selectedAdminTime = null;
-  document.querySelectorAll('#a-days .day-pill').forEach(el => el.classList.remove('active'));
-  document.getElementById(`a-day-${dayIdx}`).classList.add('active');
-  buildAdminTimes(dayIdx);
+  buildAdminTimes(dateStr);
   updatePreview();
 }
 
-function buildAdminTimes(dayIdx) {
+function buildAdminTimes(dateStr) {
   const cont = document.getElementById('a-times');
-  const bookedTimes = SERENITY.citas.filter(c => c.day === dayIdx).map(c => c.time);
+  const bookedTimes = SERENITY.citas.filter(c => c.date === dateStr).map(c => c.time);
   
   let html = '';
   SERENITY.horarios.forEach(time => {
@@ -304,9 +283,8 @@ function updatePreview() {
   const service = document.getElementById('a-service').value;
 
   let dateStr = '[fecha por confirmar]';
-  if (selectedAdminDay !== null && selectedAdminTime) {
-    const dayObj = SERENITY.diasSemana.find(d => d.idx === selectedAdminDay);
-    dateStr = `${dayObj.label} ${dayObj.num} a las ${selectedAdminTime}`;
+  if (selectedAdminDate && selectedAdminTime) {
+    dateStr = `${selectedAdminDate} a las ${selectedAdminTime}`;
   }
 
   const msg = `Hola ${client.split(' ')[0]}, te confirmamos tu cita 🌿\n\n💆 *${service}*\n📅 *${dateStr}*\n\n¡Te esperamos! Cualquier duda, escríbenos.`;
@@ -323,21 +301,20 @@ function adminConfirm() {
   if (!client) { showToast('⚠ Ingresa el nombre del cliente'); return; }
   if (!cedula) { showToast('⚠ Ingresa la cédula del cliente'); return; }
   if (!phone) { showToast('⚠ Ingresa el teléfono del cliente'); return; }
-  if (selectedAdminDay === null || !selectedAdminTime) { showToast('⚠ Selecciona el día y la hora de la cita'); return; }
+  if (selectedAdminDate === null || !selectedAdminTime) { showToast('⚠ Selecciona la fecha y hora de la cita'); return; }
 
   // Validar si la cita no se ocupó en otro lado
-  const isBooked = SERENITY.citas.some(c => c.day === selectedAdminDay && c.time === selectedAdminTime);
+  const isBooked = SERENITY.citas.some(c => c.date === selectedAdminDate && c.time === selectedAdminTime);
   if (isBooked) {
       showToast('⚠ Este horario ya fue reservado. Elige otro.');
       return;
   }
 
-  const dayObj = SERENITY.diasSemana.find(d => d.idx === selectedAdminDay);
-  const dateStr = `${dayObj.label} ${dayObj.num} a las ${selectedAdminTime}`;
+  const dateStr = `${selectedAdminDate} a las ${selectedAdminTime}`;
 
   SERENITY.citas.push({
     time: selectedAdminTime,
-    day: selectedAdminDay,
+    date: selectedAdminDate,
     client: client.split(' ')[0],
     cedula: cedula,
     service: service.split(' ')[0],
@@ -365,9 +342,9 @@ function adminConfirm() {
   showToast('✓ Confirmación enviada por WhatsApp');
 
   // Reseteamos el picker de la vista
-  selectedAdminDay = null;
+  selectedAdminDate = null;
   selectedAdminTime = null;
-  buildAdminDays();
+  document.getElementById('a-date').value = '';
   document.getElementById('a-times').innerHTML = '';
 
   switchTab('agenda', document.querySelectorAll('.tab-btn')[0]);
@@ -377,6 +354,5 @@ function adminConfirm() {
 buildGrid();
 buildMonthGrid();
 buildServiceSelect();
-buildAdminDays();
 renderClients(SERENITY.clientes);
 updatePreview();
