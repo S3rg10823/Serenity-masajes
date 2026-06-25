@@ -270,6 +270,17 @@ function goToNewCita(name, cedula, phone) {
   updatePreview();
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const aService = document.getElementById('a-service');
+    if (aService) {
+        aService.addEventListener('change', () => {
+            if (selectedAdminDate) {
+                buildAdminTimes(selectedAdminDate);
+            }
+        });
+    }
+});
+
 async function rescheduleClientCita(cedula, name, phone) {
   await dbDeleteCita(cedula);
   buildGrid();
@@ -291,17 +302,32 @@ function selectAdminDate(dateStr) {
 
 function buildAdminTimes(dateStr) {
   const cont = document.getElementById('a-times');
-  const bookedTimes = SERENITY.citas.filter(c => c.date === dateStr).map(c => c.time);
+  
+  // Obtener la duración del servicio seleccionado actualmente en admin
+  const selService = document.getElementById('a-service') ? document.getElementById('a-service').value : null;
+  const reqDuration = getDurationMins(selService);
+
+  const bookedRanges = SERENITY.citas
+    .filter(c => c.date === dateStr)
+    .map(c => {
+        const start = timeToMins(c.time);
+        const duration = getDurationMins(c.service);
+        return { start, end: start + duration };
+    });
   
   let html = '';
   SERENITY.horarios.forEach(time => {
-      const isBooked = bookedTimes.includes(time);
+      const slotStart = timeToMins(time);
+      const slotEnd = slotStart + reqDuration;
+      
+      const isBooked = bookedRanges.some(b => slotStart < b.end && slotEnd > b.start);
       if (isBooked) {
           html += `<button class="time-btn" disabled>${time}</button>`;
       } else {
           html += `<button class="time-btn" id="a-time-${time.replace(':','')}" onclick="selectAdminTime('${time}')">${time}</button>`;
       }
   });
+  
   cont.innerHTML = html;
 }
 

@@ -21,6 +21,19 @@ const DEFAULT_SERENITY = {
     clientes: [],
 };
 
+function getDurationMins(serviceName) {
+    if (!serviceName) return 60;
+    const match = serviceName.match(/(\d+)\s*min/i);
+    return match ? parseInt(match[1]) : 60;
+}
+
+function timeToMins(timeStr) {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(':');
+    if (parts.length < 2) return 0;
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+}
+
 let SERENITY = JSON.parse(JSON.stringify(DEFAULT_SERENITY));
 
 // Generar diasSemana desde el lunes actual

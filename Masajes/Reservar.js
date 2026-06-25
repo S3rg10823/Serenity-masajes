@@ -59,6 +59,14 @@ async function initClientView() {
         dateInput.setAttribute('min', today);
     }
     
+    // Si cambian de servicio, recalcular los horarios disponibles por si cambian las duraciones
+    const serviceSel = document.getElementById('c-service');
+    if (serviceSel) {
+        serviceSel.addEventListener('change', () => {
+            if (selectedClientDate) buildTimes(selectedClientDate);
+        });
+    }
+
     renderMyCitas();
 }
 
@@ -82,12 +90,27 @@ function selectClientDate(dateStr) {
 function buildTimes(dateStr) {
     const cont = document.getElementById('c-times');
     
-    // Obtener los horarios ocupados de las citas
-    const bookedTimes = SERENITY.citas.filter(c => c.date === dateStr).map(c => c.time);
+    // Obtener la duración del servicio seleccionado actualmente
+    const selService = document.getElementById('c-service') ? document.getElementById('c-service').value : null;
+    const reqDuration = getDurationMins(selService);
+    
+    // Obtener los rangos horarios ocupados de las citas para este día
+    const bookedRanges = SERENITY.citas
+        .filter(c => c.date === dateStr)
+        .map(c => {
+            const start = timeToMins(c.time);
+            const duration = getDurationMins(c.service);
+            return { start, end: start + duration };
+        });
     
     let html = '';
     SERENITY.horarios.forEach(time => {
-        const isBooked = bookedTimes.includes(time);
+        const slotStart = timeToMins(time);
+        const slotEnd = slotStart + reqDuration;
+        
+        // Comprobar solapamiento: un slot se solapa si empieza ANTES de que termine una cita Y termina DESPUÉS de que empieza
+        const isBooked = bookedRanges.some(b => slotStart < b.end && slotEnd > b.start);
+        
         if (isBooked) {
             html += `<button class="time-btn" disabled>${time}</button>`;
         } else {
