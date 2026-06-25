@@ -4,7 +4,7 @@
 
 let currentUser = null;
 let currentCedula = null;
-let selectedDay = null;
+let selectedClientDate = null;
 let selectedTime = null;
 
 // ── Auth ──────────────────────────────────────────────────────
@@ -51,7 +51,14 @@ function switchClientTab(id, btn) {
 async function initClientView() {
     await loadFirestoreData();
     buildServices();
-    buildDays();
+    
+    // Configurar el date picker para bloquear fechas pasadas
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('c-date');
+    if (dateInput) {
+        dateInput.setAttribute('min', today);
+    }
+    
     renderMyCitas();
 }
 
@@ -66,35 +73,17 @@ function buildServices() {
     });
 }
 
-function buildDays() {
-    const cont = document.getElementById('c-days');
-    cont.innerHTML = SERENITY.diasSemana.map((d, i) => `
-        <div class="day-pill" id="day-${d.idx}" onclick="selectDay(${d.idx})">
-            <span class="lbl">${d.label}</span>
-            <span class="num">${d.num}</span>
-        </div>
-    `).join('');
-}
-
-function selectDay(dayIdx) {
-    selectedDay = dayIdx;
+function selectClientDate(dateStr) {
+    selectedClientDate = dateStr;
     selectedTime = null;
-    
-    // Update UI
-    document.querySelectorAll('.day-pill').forEach(el => el.classList.remove('active'));
-    document.getElementById(`day-${dayIdx}`).classList.add('active');
-    
-    buildTimes(dayIdx);
+    buildTimes(dateStr);
 }
 
-function buildTimes(dayIdx) {
+function buildTimes(dateStr) {
     const cont = document.getElementById('c-times');
     
-    const dayObj = SERENITY.diasSemana.find(d => d.idx === dayIdx);
-    const dateStr = dayObj ? dayObj.date : null;
-
     // Obtener los horarios ocupados de las citas
-    const bookedTimes = SERENITY.citas.filter(c => c.date === dateStr || c.day === dayIdx).map(c => c.time);
+    const bookedTimes = SERENITY.citas.filter(c => c.date === dateStr).map(c => c.time);
     
     let html = '';
     SERENITY.horarios.forEach(time => {
@@ -117,20 +106,18 @@ function selectTime(time) {
 
 // ── WhatsApp Action ───────────────────────────────────────────
 async function requestAppointment() {
-    if (selectedDay === null || !selectedTime) {
+    if (!selectedClientDate || !selectedTime) {
         alert('Por favor selecciona un día y una hora.');
         return;
     }
     
     const service = document.getElementById('c-service').value;
-    const dayObj = SERENITY.diasSemana.find(d => d.idx === selectedDay);
-    const dateStr = dayObj ? dayObj.date : null;
-    const msg = `Hola Serenity Masajes 🌿\n\nSoy ${currentUser} (C.C. ${currentCedula}), me gustaría agendar una cita:\n\n💆 *${service}*\n📅 *${dayObj.label} ${dayObj.num}* a las *${selectedTime}*\n\n¿Me confirmas disponibilidad?`;
+    const msg = `Hola Serenity Masajes 🌿\n\nSoy ${currentUser} (C.C. ${currentCedula}), me gustaría agendar una cita:\n\n💆 *${service}*\n📅 *${selectedClientDate}* a las *${selectedTime}*\n\n¿Me confirmas disponibilidad?`;
     
     // Guardar la solicitud en Firestore como cita "pendiente" o simplemente ocupada temporalmente
     await dbAddCita({
         time: selectedTime,
-        date: dateStr,
+        date: selectedClientDate,
         client: currentUser.split(' ')[0],
         cedula: currentCedula,
         service: service.split(' ')[0],
@@ -146,7 +133,7 @@ async function requestAppointment() {
             cedula: currentCedula,
             phone: "",
             sessions: 0,
-            next: `${dateStr} · ${selectedTime}`,
+            next: `${selectedClientDate} · ${selectedTime}`,
             history: []
         };
         await dbUpdateCliente(cliente);
@@ -171,28 +158,26 @@ function renderMyCitas() {
         contUp.innerHTML = `<div class="empty-state"><i class="ti ti-calendar-off"></i> No tienes citas próximas.</div>`;
     } else {
         contUp.innerHTML = upcoming.map(c => {
-            const d = SERENITY.diasSemana.find(day => day.idx === c.day);
-            const today = SERENITY.diasSemana.find(day => day.hoy);
-            
-            // Permitir reprogramar si la cita es mañana o después (idx > hoy.idx)
-            const canReschedule = d && today && d.idx > today.idx;
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dateLabel = c.date || ('Día ' + c.day);
+            const canReschedule = dateLabel > todayStr;
 
             return `
             <div class="appointment-card upcoming">
                 <div class="appointment-info">
                     <h4>${c.service}</h4>
-                    <p><i class="ti ti-calendar-event"></i> ${d ? (d.label + ' ' + d.num) : 'Día ' + c.day} · ${c.time}</p>
+                    <p><i class="ti ti-calendar-event"></i> ${dateLabel} · ${c.time}</p>
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <button class="btn-outline cancel" onclick="cancelWhatsApp('${c.service}', '${d ? d.label + ' ' + d.num : ''}', '${c.time}')">
+                    <button class="btn-outline cancel" onclick="cancelWhatsApp('${c.service}', '${dateLabel}', '${c.time}')">
                         <i class="ti ti-x"></i> Cancelar
                     </button>
                     ${canReschedule ? `
-                    <button class="btn-outline" onclick="rescheduleWhatsApp('${c.service}', '${d ? d.label + ' ' + d.num : ''}', '${c.time}')">
+                    <button class="btn-outline" onclick="rescheduleWhatsApp('${c.service}', '${dateLabel}', '${c.time}')">
                         <i class="ti ti-refresh"></i> Reprogramar
                     </button>
                     ` : `
-                    <button class="btn-outline" style="opacity:0.5; cursor:not-allowed;" onclick="alert('No puedes reprogramar con menos de 24 horas de anticipación. Por favor comunícate directamente por WhatsApp.')">
+                    <button class="btn-outline" style="opacity:0.5; cursor:not-allowed;" onclick="alert('No puedes reprogramar citas para el mismo día o en el pasado. Comunícate directamente por WhatsApp.')">
                         <i class="ti ti-refresh"></i> Reprogramar
                     </button>
                     `}
